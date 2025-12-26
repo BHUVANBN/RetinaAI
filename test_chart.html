@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Live Chart Test</h1>
+        
+        <div id="chartContainer" class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-700 mb-3">Probability Distribution</h4>
+            <div id="chartArea" class="space-y-2">
+                <!-- Chart will be inserted here -->
+            </div>
+        </div>
+        
+        <button onclick="testChart()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+            Test Chart
+        </button>
+    </div>
+
+    <script>
+        function testChart() {
+            const probabilities = [35.02, 19.73, 5.51, 35.07, 4.67];
+            updateProbabilityChart(probabilities);
+        }
+        
+        function updateProbabilityChart(probabilities) {
+            const labels = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative'];
+            const colors = ['#10b981', '#84cc16', '#f59e0b', '#ef4444', '#991b1b'];
+            
+            const container = document.getElementById('chartArea');
+            container.innerHTML = '';
+            
+            // Create a canvas for the live chart
+            const canvasContainer = document.createElement('div');
+            canvasContainer.className = 'mb-4';
+            canvasContainer.innerHTML = `
+                <canvas id="liveChart" width="400" height="200"></canvas>
+            `;
+            container.appendChild(canvasContainer);
+            
+            // Create detailed probability bars
+            const detailsContainer = document.createElement('div');
+            detailsContainer.className = 'space-y-2 mt-4';
+            
+            labels.forEach((label, index) => {
+                const probability = probabilities[index];
+                const color = colors[index];
+                
+                const barContainer = document.createElement('div');
+                barContainer.className = 'flex items-center space-x-3';
+                
+                barContainer.innerHTML = `
+                    <div class="w-20 text-sm font-medium text-gray-700">${label}</div>
+                    <div class="flex-1 bg-gray-200 rounded-full h-6 relative">
+                        <div class="h-6 rounded-full flex items-center justify-end pr-2" 
+                             style="width: ${probability}%; background-color: ${color};">
+                            <span class="text-xs text-white font-semibold">${probability}%</span>
+                        </div>
+                    </div>
+                `;
+                
+                detailsContainer.appendChild(barContainer);
+            });
+            
+            container.appendChild(detailsContainer);
+            
+            // Draw live chart
+            drawLiveChart(probabilities, labels, colors);
+        }
+        
+        function drawLiveChart(probabilities, labels, colors) {
+            const canvas = document.getElementById('liveChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Chart settings
+            const padding = 40;
+            const barWidth = (width - padding * 2) / labels.length;
+            const maxProbability = 100; // Always use 100% for better visualization
+            
+            // Draw axes
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            
+            // Draw bars
+            labels.forEach((label, index) => {
+                const probability = probabilities[index];
+                const barHeight = (probability / maxProbability) * (height - padding * 2);
+                const x = padding + index * barWidth + barWidth * 0.1;
+                const y = height - padding - barHeight;
+                const width = barWidth * 0.8;
+                
+                // Draw bar
+                ctx.fillStyle = colors[index];
+                ctx.fillRect(x, y, width, barHeight);
+                
+                // Draw value on top of bar
+                ctx.fillStyle = '#374151';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${probability}%`, x + width / 2, y - 5);
+                
+                // Draw label
+                ctx.save();
+                ctx.translate(x + width / 2, height - padding + 15);
+                ctx.rotate(-Math.PI / 6);
+                ctx.font = '11px Inter';
+                ctx.textAlign = 'right';
+                ctx.fillText(label, 0, 0);
+                ctx.restore();
+            });
+            
+            // Draw title
+            ctx.fillStyle = '#111827';
+            ctx.font = 'bold 14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Diabetic Retinopathy Severity Distribution', width / 2, 20);
+        }
+    </script>
+</body>
+</html>

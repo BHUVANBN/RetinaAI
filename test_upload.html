@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #333; color: white; }
+        .upload-zone { border: 2px dashed #666; padding: 20px; text-align: center; cursor: pointer; }
+        .upload-zone:hover { border-color: #999; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        #preview { max-width: 300px; margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <h1>Upload Test</h1>
+    
+    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFile(event)">
+        <p>Click to select image</p>
+        <button onclick="document.getElementById('fileInput').click()">Browse Files</button>
+    </div>
+    
+    <div id="preview" style="display: none;">
+        <img id="img" src="" alt="Preview" style="width: 100%;">
+        <p id="fileName"></p>
+        <button onclick="testUpload()">Test Upload</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script>
+        let selectedFile = null;
+        
+        function handleFile(event) {
+            console.log('handleFile called');
+            const file = event.target.files[0];
+            console.log('File:', file);
+            
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('img').src = e.target.result;
+                    document.getElementById('preview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        async function testUpload() {
+            if (!selectedFile) {
+                alert('No file selected');
+                return;
+            }
+            
+            console.log('Testing upload:', selectedFile.name);
+            
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            
+            try {
+                const response = await fetch('/prediction/predict/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                console.log('Upload result:', result);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>Result:</h3>
+                    <p>Prediction: ${result.prediction}</p>
+                    <p>Confidence: ${result.confidence}%</p>
+                    <p>Success: ${result.success}</p>
+                `;
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Test direct file input
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    console.log('Change event triggered');
+                    handleFile(e);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

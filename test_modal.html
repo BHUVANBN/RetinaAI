@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modal Test</title>
+    <script>
+        // Test the modal content generation
+        const mockInfo = {
+            model_type: "Convolutional Neural Network",
+            input_shape: [224, 224, 3],
+            classes: [
+                {name: "No DR", description: "No signs of diabetic retinopathy detected"},
+                {name: "Mild", description: "Mild non-proliferative diabetic retinopathy"},
+                {name: "Moderate", description: "Moderate non-proliferative diabetic retinopathy"},
+                {name: "Severe", description: "Severe non-proliferative diabetic retinopathy"},
+                {name: "Proliferative", description: "Proliferative diabetic retinopathy"}
+            ],
+            model_loaded: false,
+            demo_mode: true
+        };
+        
+        window.onload = function() {
+            const content = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-700">
+                            <h4 class="font-semibold text-white mb-2 text-sm">Neural Architecture</h4>
+                            <p class="text-secondary text-sm">${mockInfo.model_type}</p>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-700">
+                            <h4 class="font-semibold text-white mb-2 text-sm">Input Dimensions</h4>
+                            <p class="text-secondary text-sm">${mockInfo.input_shape.join(' × ')} pixels</p>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-700">
+                            <h4 class="font-semibold text-white mb-2 text-sm">Network Status</h4>
+                            <p class="text-secondary text-sm">
+                                ${mockInfo.model_loaded ? 
+                                    '<span class="text-green-400">● Neural Network Active</span>' : 
+                                    '<span class="text-yellow-400">● Demo Mode</span>'}
+                            </p>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-700">
+                            <h4 class="font-semibold text-white mb-2 text-sm">Classification Classes</h4>
+                            <p class="text-secondary text-sm">${mockInfo.classes.length} severity levels</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-white mb-4 text-sm">Neural Classification Matrix</h4>
+                        <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-hide">
+                            ${mockInfo.classes.map(cls => `
+                                <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3 border border-gray-700">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium text-white text-sm">${cls.name}</span>
+                                        <span class="text-secondary text-xs">${cls.description}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.innerHTML = '<pre>' + JSON.stringify(mockInfo, null, 2) + '</pre><hr><h3>Generated Content:</h3><div>' + content + '</div>';
+            console.log('Total classes:', mockInfo.classes.length);
+            console.log('Class names:', mockInfo.classes.map(c => c.name));
+        };
+    </script>
+</head>
+<body>
+    <h2>Modal Content Test</h2>
+</body>
+</html>

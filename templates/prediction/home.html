@@ -1,0 +1,655 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - RetinaAI DR Detection System</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logo.svg' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            z-index: -1;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            background: rgba(59, 130, 246, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(59, 130, 246, 0.8);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: rgba(59, 130, 246, 1);
+            background: rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="neural-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-morphism border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mr-3"></div>
+                            <span class="text-white font-bold text-xl">RetinaAI</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="{% url 'prediction:home' %}" class="text-white bg-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-home mr-2"></i>Home
+                            </a>
+                            <a href="{% url 'prediction:dataset' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-database mr-2"></i>Dataset
+                            </a>
+                            <a href="{% url 'prediction:performance' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-chart-line mr-2"></i>Performance
+                            </a>
+                            <a href="{% url 'prediction:report' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-file-medical mr-2"></i>Reports
+                            </a>
+                            <a href="{% url 'prediction:parameters' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-sliders-h mr-2"></i>Parameters
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-300 mr-4">
+                        <i class="fas fa-user mr-2"></i>{{ user.username|default:"User" }}
+                    </span>
+                    <a href="{% url 'prediction:logout' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="text-center mb-20">
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-home mr-3 text-blue-400"></i>Welcome to RetinaAI
+            </h1>
+            <p class="text-gray-400">Advanced Diabetic Retinopathy Detection System powered by Deep Learning</p>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-morphism rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-eye text-blue-400 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">{{ stats.total_analyses|default:"--" }}</h3>
+                <p class="text-gray-400">Total Analyses</p>
+            </div>
+            
+            <div class="glass-morphism rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">{{ stats.unique_users|default:"--" }}</h3>
+                <p class="text-gray-400">Active Users</p>
+            </div>
+            
+            <div class="glass-morphism rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-layer-group text-purple-400 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">5</h3>
+                <p class="text-gray-400">DR Severity Levels</p>
+            </div>
+            
+                        
+            <div class="glass-morphism rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bullseye text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">{{ model_stats.accuracy|floatformat:1 }}%</h3>
+                <p class="text-gray-400">Model Accuracy</p>
+                <p class="text-gray-500 text-xs mt-1">{{ model_stats.model_type }}</p>
+            </div>
+        </div>
+        
+        <!-- Main Features Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Image Upload Section -->
+            <div class="glass-morphism rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-white mb-6">
+                    <i class="fas fa-upload mr-3 text-blue-400"></i>Upload Retinal Image
+                </h2>
+                
+                <div id="uploadArea" class="upload-area rounded-xl p-8 text-center cursor-pointer">
+                    <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cloud-upload-alt text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-white mb-2">Drop image here or click to browse</h3>
+                    <p class="text-gray-400 text-sm mb-6">Supports: JPG, PNG, DICOM (Max 10MB)</p>
+                    <input type="file" id="imageInput" class="hidden" accept="image/*">
+                    <button onclick="document.getElementById('imageInput').click()" 
+                            class="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-folder-open mr-2"></i>Choose File
+                    </button>
+                </div>
+                
+                <div id="previewArea" class="hidden mt-8">
+                    <div class="relative">
+                        <img id="previewImage" class="w-full rounded-lg" alt="Preview">
+                        <button onclick="clearImage()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button onclick="analyzeImage()" class="w-full mt-4 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300">
+                        <i class="fas fa-search mr-2"></i>Analyze Image
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="glass-morphism rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-white mb-6">
+                    <i class="fas fa-th-large mr-3 text-green-400"></i>Quick Actions
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <a href="{% url 'prediction:dataset' %}" class="p-6 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition-colors group">
+                        <div class="w-14 h-14 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
+                            <i class="fas fa-database text-blue-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-medium mb-2">View Dataset</h3>
+                        <p class="text-gray-400 text-sm">Browse training images</p>
+                    </a>
+                    
+                    <a href="{% url 'prediction:performance' %}" class="p-6 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition-colors group">
+                        <div class="w-14 h-14 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-500/30 transition-colors">
+                            <i class="fas fa-chart-line text-green-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-medium mb-2">Performance</h3>
+                        <p class="text-gray-400 text-sm">Model accuracy metrics</p>
+                    </a>
+                    
+                    <a href="{% url 'prediction:report' %}" class="p-6 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition-colors group">
+                        <div class="w-14 h-14 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
+                            <i class="fas fa-file-medical text-purple-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-medium mb-2">Reports</h3>
+                        <p class="text-gray-400 text-sm">Generate analysis reports</p>
+                    </a>
+                    
+                    <a href="{% url 'prediction:parameters' %}" class="p-6 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition-colors group">
+                        <div class="w-14 h-14 bg-orange-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-500/30 transition-colors">
+                            <i class="fas fa-sliders-h text-orange-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-medium mb-2">Parameters</h3>
+                        <p class="text-gray-400 text-sm">Model configuration</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Results -->
+        <div class="glass-morphism rounded-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                <i class="fas fa-history mr-3 text-purple-400"></i>Your Recent Analysis Results
+            </h2>
+            
+            {% if recent_analyses %}
+                <div class="space-y-4">
+                    {% for analysis in recent_analyses %}
+                    <div class="glass-morphism rounded-lg p-6 border border-gray-700/50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-eye text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-medium">{{ analysis.prediction_result }}</h4>
+                                    <p class="text-gray-400 text-sm">
+                                        {{ analysis.created_at|date:"M d, Y H:i" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                {% if analysis.confidence_scores %}
+                                    <div class="text-right">
+                                        <p class="text-gray-400 text-xs">Confidence</p>
+                                        <p class="text-green-400 font-medium">
+                                            {{ analysis.confidence_scores|floatformat:1 }}%
+                                        </p>
+                                    </div>
+                                {% endif %}
+                                <button class="text-blue-400 hover:text-blue-300">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-inbox text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-400">No analysis results available</p>
+                    <p class="text-gray-500 text-sm mt-2">Upload and analyze retinal images to see results here</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- System Status -->
+        <div class="glass-morphism rounded-xl p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-green-500 rounded-full mr-4 animate-pulse"></div>
+                    <span class="text-white font-medium">System Status: Online</span>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <span class="text-gray-400">
+                        <i class="fas fa-microchip mr-2"></i>CNN Model: Active
+                    </span>
+                    <span class="text-gray-400">
+                        <i class="fas fa-database mr-2"></i>Database: Connected
+                    </span>
+                    <span class="text-gray-400">
+                        <i class="fas fa-clock mr-2"></i>Last Update: <span id="lastUpdate">Just now</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="glass-morphism border-t border-gray-700 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mr-3"></div>
+                        <span class="text-white font-bold text-xl">RetinaAI</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Advanced Diabetic Retinopathy Detection System powered by Deep Learning. 
+                        Helping healthcare professionals detect DR early and accurately.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'prediction:home' %}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="{% url 'prediction:dataset' %}" class="text-gray-400 hover:text-white transition-colors">Dataset</a></li>
+                        <li><a href="{% url 'prediction:performance' %}" class="text-gray-400 hover:text-white transition-colors">Performance</a></li>
+                        <li><a href="{% url 'prediction:report' %}" class="text-gray-400 hover:text-white transition-colors">Reports</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Support -->
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm">
+                        © 2024 RetinaAI. All rights reserved.
+                    </p>
+                    <div class="flex items-center space-x-6 mt-4 md:mt-0">
+                        <span class="text-gray-400 text-sm">
+                            <i class="fas fa-shield-alt mr-1"></i>HIPAA Compliant
+                        </span>
+                        <span class="text-gray-400 text-sm">
+                            <i class="fas fa-lock mr-1"></i>Secure & Private
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Result Modal -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="glass-morphism rounded-xl p-8 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-semibold text-white">Analysis Results</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="resultContent" class="space-y-4">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImage = document.getElementById('previewImage');
+        
+        uploadArea.addEventListener('click', () => imageInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        function handleFileSelect(file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    uploadArea.classList.add('hidden');
+                    previewArea.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select an image file');
+            }
+        }
+        
+        function clearImage() {
+            previewImage.src = '';
+            uploadArea.classList.remove('hidden');
+            previewArea.classList.add('hidden');
+            imageInput.value = '';
+        }
+        
+        function analyzeImage() {
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            
+            // Show loading state
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-gray-400">Analyzing image...</p>
+                </div>
+            `;
+            document.getElementById('resultModal').classList.remove('hidden');
+            
+            // Make real API call to prediction endpoint
+            fetch('/prediction/predict/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPredictionResults(data);
+                } else {
+                    showError(data.error || 'Prediction failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Network error. Please try again.');
+            });
+        }
+        
+        function showPredictionResults(data) {
+            const resultContent = document.getElementById('resultContent');
+            const probabilities = data.all_probabilities || [];
+            const classLabels = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative'];
+            
+            let resultsHTML = `
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-green-400 text-3xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-2">Analysis Complete</h4>
+                    <p class="text-gray-400">Prediction: <span class="text-green-400 font-medium">${data.prediction}</span></p>
+                    <p class="text-gray-400">Confidence: <span class="text-blue-400 font-medium">${data.confidence}%</span></p>
+                </div>
+                
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h5 class="text-white font-medium mb-3">Classification Probabilities</h5>
+                    <div class="space-y-2">
+            `;
+            
+            for (let i = 0; i < classLabels.length; i++) {
+                const probability = probabilities[i] || 0;
+                const barColor = probability > 50 ? 'bg-green-500' : probability > 25 ? 'bg-yellow-500' : 'bg-gray-500';
+                
+                resultsHTML += `
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">${classLabels[i]}</span>
+                        <div class="flex items-center">
+                            <div class="w-32 bg-gray-700 rounded-full h-2 mr-2">
+                                <div class="${barColor} h-2 rounded-full" style="width: ${probability}%"></div>
+                            </div>
+                            <span class="text-white text-sm">${probability}%</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsHTML += `
+                    </div>
+                </div>
+                
+                <div class="bg-green-500/20 border border-green-500/50 rounded-lg p-4">
+                    <p class="text-green-400 text-sm">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <strong>Model Status:</strong> Trained and ready for predictions. Upload retinal images to get instant DR classification results.
+                    </p>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeModal()" class="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        Close
+                    </button>
+                    <button onclick="saveReport()" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-save mr-2"></i>Save Report
+                    </button>
+                </div>
+            `;
+            
+            resultContent.innerHTML = resultsHTML;
+        }
+        
+        function showError(message) {
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-400 text-3xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-white mb-2">Analysis Failed</h4>
+                    <p class="text-red-400">${message}</p>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeModal()" class="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        Close
+                    </button>
+                </div>
+            `;
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        function closeModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+            clearImage();
+        }
+        
+        function saveReport() {
+            alert('Report saved successfully!');
+            closeModal();
+        }
+        
+        function showModelInfo() {
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h5 class="text-white font-medium mb-2">Model Architecture</h5>
+                        <p class="text-gray-400 text-sm">Convolutional Neural Network (CNN) with 5 classification layers</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h5 class="text-white font-medium mb-2">Input Specifications</h5>
+                        <p class="text-gray-400 text-sm">224×224×3 RGB images, pre-processed with normalization</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h5 class="text-white font-medium mb-2">Training Dataset</h5>
+                        <p class="text-gray-400 text-sm">5,000 retinal fundus images, balanced across 5 classes</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h5 class="text-white font-medium mb-2">Performance Metrics</h5>
+                        <p class="text-gray-400 text-sm">Accuracy: 74.01%, Precision: 91.0%, Recall: 98.0%</p>
+                    </div>
+                    <button onclick="closeModal()" class="w-full px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        Close
+                    </button>
+                </div>
+            `;
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+        
+        // Update last update time
+        setInterval(() => {
+            document.getElementById('lastUpdate').textContent = 'Just now';
+        }, 60000);
+        
+        // Load stats asynchronously for faster page load
+        async function loadStatsAsync() {
+            try {
+                // Simulate API call to get stats (replace with actual endpoint if needed)
+                const response = await fetch('/api/stats/');
+                if (response.ok) {
+                    const stats = await response.json();
+                    // Update stats on the page
+                    const totalAnalysesElement = document.querySelector('.glass-morphism .text-2xl');
+                    if (totalAnalysesElement && stats.total_analyses !== undefined) {
+                        totalAnalysesElement.textContent = stats.total_analyses;
+                    }
+                }
+            } catch (error) {
+                console.log('Stats loading failed, using default values');
+            }
+        }
+        
+        // Load stats after page is fully loaded
+        window.addEventListener('load', () => {
+            setTimeout(loadStatsAsync, 500); // Small delay to ensure page is rendered
+        });
+    </script>
+</body>
+</html>

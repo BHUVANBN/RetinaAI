@@ -1,0 +1,407 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Parameters - RetinaAI DR Detection System</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logo.svg' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .parameter-card {
+            transition: all 0.3s ease;
+        }
+        
+        .parameter-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="neural-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-morphism border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mr-3"></div>
+                            <span class="text-white font-bold text-xl">RetinaAI</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="{% url 'prediction:home' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-home mr-2"></i>Home
+                            </a>
+                            <a href="{% url 'prediction:dataset' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-database mr-2"></i>Dataset
+                            </a>
+                            <a href="{% url 'prediction:performance' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-chart-line mr-2"></i>Performance
+                            </a>
+                            <a href="{% url 'prediction:report' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-file-medical mr-2"></i>Reports
+                            </a>
+                            <a href="{% url 'prediction:parameters' %}" class="text-white bg-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-sliders-h mr-2"></i>Parameters
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-300 mr-4">
+                        <i class="fas fa-user mr-2"></i>{{ request.session.username|default:"User" }}
+                    </span>
+                    <a href="{% url 'prediction:logout' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-sliders-h mr-3 text-indigo-400"></i>Retinal Image Parameters
+            </h1>
+            <p class="text-gray-400">Technical parameters and features extracted from retinal images for CNN classification</p>
+        </div>
+        
+        <!-- Image Processing Pipeline -->
+        <div class="glass-morphism rounded-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                <i class="fas fa-cogs mr-2 text-blue-400"></i>Image Processing Pipeline
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-upload text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">Input Image</h3>
+                    <p class="text-gray-400 text-sm">Original retinal fundus image</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-crop text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">Preprocessing</h3>
+                    <p class="text-gray-400 text-sm">Resize to 224×224 pixels</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-adjust text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">Normalization</h3>
+                    <p class="text-gray-400 text-sm">Pixel values [0,1] scaling</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-brain text-orange-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">CNN Analysis</h3>
+                    <p class="text-gray-400 text-sm">Feature extraction & classification</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technical Parameters -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Image Specifications -->
+            <div class="glass-morphism rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-white mb-6">
+                    <i class="fas fa-image mr-2 text-green-400"></i>Image Specifications
+                </h2>
+                <div class="space-y-4">
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Input Dimensions</span>
+                            <span class="text-white font-medium">224×224×3</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Color Space</span>
+                            <span class="text-white font-medium">RGB</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">File Size Limit</span>
+                            <span class="text-white font-medium">10MB</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Supported Formats</span>
+                            <span class="text-white font-medium">JPG, PNG, DICOM</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-orange-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CNN Model Parameters -->
+            <div class="glass-morphism rounded-xl p-6">
+                <h2 class="text-xl font-semibold text-white mb-6">
+                    <i class="fas fa-network-wired mr-2 text-purple-400"></i>CNN Model Parameters
+                </h2>
+                <div class="space-y-4">
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Convolutional Layers</span>
+                            <span class="text-white font-medium">5</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Filters per Layer</span>
+                            <span class="text-white font-medium">32, 64, 128, 256, 512</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Kernel Size</span>
+                            <span class="text-white font-medium">3×3</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-pink-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-card bg-gray-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Total Parameters</span>
+                            <span class="text-white font-medium">2.3M</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feature Extraction -->
+        <div class="glass-morphism rounded-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                <i class="fas fa-fingerprint mr-2 text-yellow-400"></i>Extracted Features
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
+                        <i class="fas fa-eye text-red-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">Vascular Features</h3>
+                    <ul class="text-gray-400 text-sm space-y-1">
+                        <li>• Blood vessel density</li>
+                        <li>• Vessel tortuosity</li>
+                        <li>• Arteriovenous ratio</li>
+                        <li>• Vessel caliber changes</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-3">
+                        <i class="fas fa-circle text-green-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">Lesion Detection</h3>
+                    <ul class="text-gray-400 text-sm space-y-1">
+                        <li>• Microaneurysms</li>
+                        <li>• Hemorrhages</li>
+                        <li>• Exudates</li>
+                        <li>• Cotton wool spots</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3">
+                        <i class="fas fa-th text-blue-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-white font-medium mb-2">Texture Analysis</h3>
+                    <ul class="text-gray-400 text-sm space-y-1">
+                        <li>• Retinal texture patterns</li>
+                        <li>• Optic disc features</li>
+                        <li>• Macular region analysis</li>
+                        <li>• Background abnormalities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Classification Parameters -->
+        <div class="glass-morphism rounded-xl p-6">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                <i class="fas fa-tags mr-2 text-cyan-400"></i>Classification Parameters
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Parameter</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Value</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+                        <tr class="hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 text-white font-medium">Learning Rate</td>
+                            <td class="px-6 py-4 text-gray-300">0.001</td>
+                            <td class="px-6 py-4 text-gray-400 text-sm">Optimization step size</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">High</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 text-white font-medium">Batch Size</td>
+                            <td class="px-6 py-4 text-gray-300">32</td>
+                            <td class="px-6 py-4 text-gray-400 text-sm">Samples per iteration</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-400">Medium</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 text-white font-medium">Epochs</td>
+                            <td class="px-6 py-4 text-gray-300">50</td>
+                            <td class="px-6 py-4 text-gray-400 text-sm">Training iterations</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">High</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 text-white font-medium">Dropout Rate</td>
+                            <td class="px-6 py-4 text-gray-300">0.5</td>
+                            <td class="px-6 py-4 text-gray-400 text-sm">Regularization parameter</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-orange-500/20 text-orange-400">Medium</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 text-white font-medium">Activation</td>
+                            <td class="px-6 py-4 text-gray-300">ReLU</td>
+                            <td class="px-6 py-4 text-gray-400 text-sm">Non-linear function</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">High</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Performance Metrics -->
+        <div class="glass-morphism rounded-xl p-6 mt-8">
+            <h2 class="text-xl font-semibold text-white mb-6">
+                <i class="fas fa-tachometer-alt mr-2 text-red-400"></i>Processing Metrics
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-clock text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">1.8s</h3>
+                    <p class="text-gray-400">Avg Processing Time</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-memory text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">256MB</h3>
+                    <p class="text-gray-400">Memory Usage</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-microchip text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">GPU</h3>
+                    <p class="text-gray-400">Processing Unit</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-bolt text-orange-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">74.01%</h3>
+                    <p class="text-gray-400">System Efficiency</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

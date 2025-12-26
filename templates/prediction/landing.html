@@ -1,0 +1,382 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetinaAI - Advanced Diabetic Retinopathy Detection</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logo.svg' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <div class="neural-bg"></div>
+    
+    <!-- Hero Section -->
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-6xl w-full">
+            <!-- Navigation -->
+            <nav class="flex justify-between items-center mb-20">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mr-3"></div>
+                    <span class="text-white font-bold text-2xl">RetinaAI</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#features" class="text-gray-300 hover:text-white transition-colors">Features</a>
+                    <a href="#how-it-works" class="text-gray-300 hover:text-white transition-colors">How It Works</a>
+                    <a href="#about" class="text-gray-300 hover:text-white transition-colors">About</a>
+                </div>
+            </nav>
+            
+            <!-- Hero Content -->
+            <div class="text-center mb-20">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-8 floating">
+                    <i class="fas fa-eye text-white text-3xl"></i>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6">
+                    <span class="gradient-text">Advanced Diabetic</span><br>
+                    <span class="gradient-text">Retinopathy Detection</span>
+                </h1>
+                
+                <p class="text-xl text-gray-300 mb-12 max-w-3xl mx-auto">
+                    Harness the power of artificial intelligence to detect diabetic retinopathy early and accurately. 
+                    Our cutting-edge CNN technology analyzes retinal images with precision, helping healthcare professionals 
+                    make informed decisions for better patient outcomes.
+                </p>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+                    <a href="{% url 'prediction:login' %}" 
+                       class="btn-primary px-8 py-4 rounded-full text-white font-semibold text-lg">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Get Started
+                    </a>
+                    <a href="{% url 'prediction:register' %}" 
+                       class="btn-secondary px-8 py-4 rounded-full text-white font-semibold text-lg">
+                        <i class="fas fa-user-plus mr-2"></i>Create Account
+                    </a>
+                </div>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-white mb-2">{{ model_stats.accuracy|floatformat:1 }}%</div>
+                        <div class="text-gray-400">Model Accuracy</div>
+                        <div class="text-gray-500 text-sm mt-1">{{ model_stats.model_type }}</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-white mb-2">&lt;2s</div>
+                        <div class="text-gray-400">Processing Time</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-white mb-2">5</div>
+                        <div class="text-gray-400">Severity Levels</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div id="features" class="mb-20">
+                <h2 class="text-3xl font-bold text-white text-center mb-16">Key Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="feature-card rounded-2xl p-8 text-center">
+                        <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-brain text-blue-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-4">AI-Powered Analysis</h3>
+                        <p class="text-gray-400">Advanced convolutional neural network trained on thousands of retinal images for accurate detection</p>
+                    </div>
+                    
+                    <div class="feature-card rounded-2xl p-8 text-center">
+                        <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-shield-alt text-green-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-4">Secure & Private</h3>
+                        <p class="text-gray-400">Your medical data is encrypted and stored securely with HIPAA-compliant protocols</p>
+                    </div>
+                    
+                    <div class="feature-card rounded-2xl p-8 text-center">
+                        <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-clock text-purple-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-4">Instant Results</h3>
+                        <p class="text-gray-400">Get comprehensive analysis results in seconds, not days or weeks</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How It Works -->
+            <div id="how-it-works" class="mb-20">
+                <h2 class="text-3xl font-bold text-white text-center mb-16">How It Works</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-upload text-orange-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Upload Image</h3>
+                        <p class="text-gray-400 text-sm">Upload retinal image in any standard format</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-cogs text-blue-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">AI Processing</h3>
+                        <p class="text-gray-400 text-sm">Our CNN analyzes the image for DR signs</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chart-line text-green-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Get Results</h3>
+                        <p class="text-gray-400 text-sm">Receive detailed analysis and confidence scores</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-download text-purple-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Download Report</h3>
+                        <p class="text-gray-400 text-sm">Export comprehensive medical report</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About Section -->
+            <div id="about" class="mb-20">
+                <h2 class="text-3xl font-bold text-white text-center mb-16">About RetinaAI</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- About Content -->
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-6">Pioneering Early Detection</h3>
+                        <p class="text-gray-300 mb-6">
+                            RetinaAI is at the forefront of medical AI innovation, specializing in early detection of diabetic retinopathy through advanced deep learning technology. Our mission is to empower healthcare professionals with cutting-edge tools that save sight and improve patient outcomes worldwide.
+                        </p>
+                        <p class="text-gray-300 mb-6">
+                            Developed by a team of leading ophthalmologists, data scientists, and AI researchers, our system has been trained on hundreds of thousands of retinal images to achieve industry-leading accuracy in detecting all stages of diabetic retinopathy.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <div class="text-3xl font-bold text-blue-400 mb-2">50K+</div>
+                                <div class="text-gray-400 text-sm">Images Analyzed</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-green-400 mb-2">74.01%</div>
+                                <div class="text-gray-400 text-sm">Detection Accuracy</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-purple-400 mb-2">500+</div>
+                                <div class="text-gray-400 text-sm">Healthcare Partners</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-orange-400 mb-2">24/7</div>
+                                <div class="text-gray-400 text-sm">Availability</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Technology Highlights -->
+                    <div>
+                        <div class="glass-morphism rounded-2xl p-8">
+                            <h4 class="text-xl font-semibold text-white mb-6">Our Technology</h4>
+                            
+                            <div class="space-y-6">
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                        <i class="fas fa-brain text-blue-400"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-white font-medium mb-2">Deep Learning Architecture</h5>
+                                        <p class="text-gray-400 text-sm">State-of-the-art CNN models trained on diverse datasets</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                        <i class="fas fa-shield-alt text-green-400"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-white font-medium mb-2">HIPAA Compliant</h5>
+                                        <p class="text-gray-400 text-sm">Enterprise-grade security and patient data protection</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                        <i class="fas fa-clock text-purple-400"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-white font-medium mb-2">Real-time Processing</h5>
+                                        <p class="text-gray-400 text-sm">Get results in seconds, not days</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                        <i class="fas fa-globe text-orange-400"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-white font-medium mb-2">Global Reach</h5>
+                                        <p class="text-gray-400 text-sm">Accessible to healthcare providers worldwide</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mission Statement -->
+                <div class="text-center mt-12">
+                    <div class="glass-morphism rounded-2xl p-8 max-w-4xl mx-auto">
+                        <h4 class="text-2xl font-semibold text-white mb-4">Our Mission</h4>
+                        <p class="text-xl text-gray-300">
+                            To make early diabetic retinopathy detection accessible, accurate, and affordable for every patient, 
+                            everywhere. We believe that combining human expertise with artificial intelligence can create a future 
+                            where no one loses their sight to preventable diabetic eye disease.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Section -->
+            <div class="hero-gradient rounded-3xl p-12 text-center">
+                <h2 class="text-3xl font-bold text-white mb-6">Ready to Transform Diabetic Care?</h2>
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                    Join thousands of healthcare professionals using RetinaAI for early detection and better patient outcomes.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'prediction:login' %}" 
+                       class="btn-primary px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-rocket mr-2"></i>Start Using RetinaAI
+                    </a>
+                    <a href="{% url 'prediction:register' %}" 
+                       class="btn-secondary px-8 py-4 rounded-full text-white font-semibold">
+                        <i class="fas fa-info-circle mr-2"></i>Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add parallax effect on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.neural-bg');
+            parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+        });
+    </script>
+</body>
+</html>

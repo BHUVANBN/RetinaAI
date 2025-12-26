@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RetinaAI DR Detection System{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logo.svg' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'glass': {
+                            'white': 'rgba(255, 255, 255, 0.1)',
+                            'border': 'rgba(255, 255, 255, 0.2)'
+                        }
+                    },
+                    backdropBlur: {
+                        'xs': '2px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-morphism:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .sample-image {
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="glass-morphism border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mr-3"></div>
+                            <span class="text-white font-bold text-xl">RetinaAI</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="{% url 'prediction:home' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-home mr-2"></i>Home
+                            </a>
+                            <a href="{% url 'prediction:dataset' %}" class="text-white bg-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-database mr-2"></i>Dataset
+                            </a>
+                            <a href="{% url 'prediction:performance' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-chart-line mr-2"></i>Performance
+                            </a>
+                            <a href="{% url 'prediction:report' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-file-medical mr-2"></i>Reports
+                            </a>
+                            <a href="{% url 'prediction:parameters' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-sliders-h mr-2"></i>Parameters
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-300 mr-4">
+                        <i class="fas fa-user mr-2"></i>{{ request.user.username|default:"User" }}
+                    </span>
+                    <a href="{% url 'prediction:logout' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mx-auto px-4 py-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} glass-morphism rounded-lg p-4 mb-4 fade-in">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pt-8 pb-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

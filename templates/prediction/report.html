@@ -1,0 +1,478 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - RetinaAI DR Detection System</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logo.svg' %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .confidence-bar {
+            background: linear-gradient(to right, #3b82f6, #10b981);
+            height: 0.5rem;
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="neural-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-morphism border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mr-3"></div>
+                            <span class="text-white font-bold text-xl">RetinaAI</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="{% url 'prediction:home' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-home mr-2"></i>Home
+                            </a>
+                            <a href="{% url 'prediction:dataset' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-database mr-2"></i>Dataset
+                            </a>
+                            <a href="{% url 'prediction:performance' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-chart-line mr-2"></i>Performance
+                            </a>
+                            <a href="{% url 'prediction:report' %}" class="text-white bg-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-file-medical mr-2"></i>Reports
+                            </a>
+                            <a href="{% url 'prediction:parameters' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-sliders-h mr-2"></i>Parameters
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-300 mr-4">
+                        <i class="fas fa-user mr-2"></i>{{ request.session.username|default:"User" }}
+                    </span>
+                    <a href="{% url 'prediction:logout' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-file-medical-alt mr-3 text-indigo-400"></i>Sample Report Details
+            </h1>
+            <p class="text-gray-400">Comprehensive diagnostic reports and query results for healthcare professionals</p>
+        </div>
+        
+                
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-morphism rounded-xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clipboard-list text-blue-400 text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">{{ user_analyses|length }}</span>
+                </div>
+                <h3 class="text-gray-300 font-medium">Total Reports</h3>
+                <p class="text-gray-500 text-sm">Generated reports</p>
+            </div>
+            
+            <div class="glass-morphism rounded-xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">{{ user_analyses|length }}</span>
+                </div>
+                <h3 class="text-gray-300 font-medium">Completed</h3>
+                <p class="text-gray-500 text-sm">Successful analyses</p>
+            </div>
+            
+            <div class="glass-morphism rounded-xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-percentage text-purple-400 text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">74.01%</span>
+                </div>
+                <h3 class="text-gray-300 font-medium">Avg Confidence</h3>
+                <p class="text-gray-500 text-sm">Model confidence</p>
+            </div>
+            
+            <div class="glass-morphism rounded-xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-orange-400 text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">0</span>
+                </div>
+                <h3 class="text-gray-300 font-medium">Critical Cases</h3>
+                <p class="text-gray-500 text-sm">Require attention</p>
+            </div>
+        </div>
+        
+        <!-- Reports Table -->
+        <div class="glass-morphism rounded-xl p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-white">
+                    <i class="fas fa-table mr-2 text-green-400"></i>Diagnostic Reports
+                </h2>
+                            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Report ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Patient ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Prediction</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Confidence</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+                        {% for analysis in user_analyses %}
+                        {% with confidence_value=analysis.confidence_scores|default:0 %}
+                        <tr class="hover:bg-gray-800/50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-white font-medium">#{{ forloop.counter }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-gray-400 text-sm"></i>
+                                    </div>
+                                    <span class="text-white">{{ user.username|default:"User" }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-300">
+                                {% if analysis.created_at %}{{ analysis.created_at|date:"M d, Y H:i" }}{% else %}No date{% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if analysis.prediction_result == 'No_DR' %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">No DR</span>
+                                {% elif analysis.prediction_result == 'Mild' %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-400">Mild</span>
+                                {% elif analysis.prediction_result == 'Moderate' %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-orange-500/20 text-orange-400">Moderate</span>
+                                {% elif analysis.prediction_result == 'Severe' %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-red-500/20 text-red-400">Severe</span>
+                                {% else %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-purple-500/20 text-purple-400">{{ analysis.prediction_result }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if confidence_value is string %}
+                                        <span class="text-white font-medium">N/A</span>
+                                    {% else %}
+                                        <div class="w-16 bg-gray-700 rounded-full h-2 mr-2">
+                                            <div class="confidence-bar transition-all duration-500" 
+                                                 style="width: {{ confidence_value|default:0|floatformat:0 }}%;"></div>
+                                        </div>
+                                        <span class="text-white font-medium">{{ confidence_value|default:0|floatformat:1 }}%</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">
+                                    <i class="fas fa-check-circle mr-1"></i>Completed
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                <button class="view-report-btn text-blue-400 hover:text-blue-300" title="View Details" 
+                                        data-report-id="{{ forloop.counter }}"
+                                        data-classification="{{ analysis.prediction_result|default:'No DR' }}"
+                                        data-confidence="{{ confidence_value|default:0|floatformat:1 }}"
+                                        data-date="{{ analysis.date|default:'2024-01-15' }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Report Details Modal -->
+        <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+            <div class="glass-morphism rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-white">
+                            <i class="fas fa-file-medical-alt mr-2 text-indigo-400"></i>Report Details
+                        </h2>
+                        <button onclick="closeReportModal()" class="text-gray-400 hover:text-white">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Report Content -->
+                    <div id="reportContent" class="bg-gray-800/50 rounded-lg p-6">
+                        <!-- Patient Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-white mb-4">Patient Information</h3>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Patient Name:</span>
+                                        <span class="text-white" id="modalPatientName">{{ user.username|default:"Not specified" }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Patient ID:</span>
+                                        <span class="text-white" id="modalPatientId">P001</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Age:</span>
+                                        <span class="text-white" id="modalAge">45 years</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Gender:</span>
+                                        <span class="text-white" id="modalGender">Female</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Test Date:</span>
+                                        <span class="text-white" id="modalTestDate">2024-01-15</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-white mb-4">Analysis Results</h3>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Classification:</span>
+                                        <span class="text-orange-400 font-medium" id="modalClassification">Moderate DR</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Confidence Score:</span>
+                                        <span class="text-white" id="modalConfidence">74.01%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Risk Level:</span>
+                                        <span class="text-yellow-400" id="modalRiskLevel">Medium</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Recommendation:</span>
+                                        <span class="text-blue-400" id="modalRecommendation">Consult Specialist</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Medical Notes -->
+                        <div class="mb-6 pt-6 border-t border-gray-700">
+                            <h3 class="text-lg font-medium text-white mb-4">Medical Notes</h3>
+                            <p class="text-gray-300 text-sm leading-relaxed" id="modalMedicalNotes">
+                                The retinal image shows moderate signs of diabetic retinopathy with microaneurysms and hemorrhages present. 
+                                Patient should be referred to an ophthalmologist for further evaluation and potential treatment. 
+                                Follow-up imaging recommended in 3-6 months to monitor progression.
+                            </p>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-3">
+                            <button onclick="downloadPDF()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                <i class="fas fa-file-pdf mr-2"></i>Download PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+            </div>
+    
+    <script>
+        // Show report details modal
+        function showReportDetails(reportId, classification, confidence, testDate) {
+            const modal = document.getElementById('reportModal');
+            
+            // Get user data from the page
+            const userAge = '{{ user.age }}' ? '{{ user.age }} years' : 'Not specified';
+            const userGender = '{{ user.get_gender_display|default:"Not specified" }}';
+            
+            // Generate patient ID based on report ID
+            const patientId = 'P' + String(reportId).padStart(3, '0');
+            
+            // Determine risk level and recommendation based on classification
+            let riskLevel, recommendation, medicalNotes;
+            
+            switch(classification.toLowerCase()) {
+                case 'no dr':
+                    riskLevel = 'None';
+                    recommendation = 'Annual Check-up';
+                    medicalNotes = 'No signs of diabetic retinopathy detected. Patient should continue regular diabetes management and annual eye examinations.';
+                    break;
+                case 'mild':
+                    riskLevel = 'Low';
+                    recommendation = 'Regular Monitoring';
+                    medicalNotes = 'Early signs of diabetic retinopathy detected. Patient should maintain regular check-ups and monitor blood sugar levels. Follow-up imaging recommended in 6 months.';
+                    break;
+                case 'moderate':
+                    riskLevel = 'Medium';
+                    recommendation = 'Consult Specialist';
+                    medicalNotes = 'The retinal image shows moderate signs of diabetic retinopathy with microaneurysms and hemorrhages present. Patient should be referred to an ophthalmologist for further evaluation and potential treatment. Follow-up imaging recommended in 3-6 months to monitor progression.';
+                    break;
+                case 'severe':
+                    riskLevel = 'High';
+                    recommendation = 'Immediate Treatment';
+                    medicalNotes = 'Severe diabetic retinopathy detected with extensive hemorrhages and microaneurysms. Immediate medical intervention required. Patient should be urgently referred to retinal specialist for treatment planning.';
+                    break;
+                default:
+                    riskLevel = 'Unknown';
+                    recommendation = 'Further Evaluation';
+                    medicalNotes = 'Classification requires further review by medical professionals. Additional diagnostic tests may be necessary.';
+            }
+            
+            // Update modal content with real user and report data
+            document.getElementById('modalPatientName').textContent = '{{ user.username|default:"Not specified" }}';
+            document.getElementById('modalPatientId').textContent = patientId;
+            document.getElementById('modalAge').textContent = userAge;
+            document.getElementById('modalGender').textContent = userGender;
+            document.getElementById('modalTestDate').textContent = testDate;
+            document.getElementById('modalClassification').textContent = classification + (classification.toLowerCase() === 'no dr' ? '' : ' DR');
+            document.getElementById('modalConfidence').textContent = confidence + '%';
+            document.getElementById('modalRiskLevel').textContent = riskLevel;
+            document.getElementById('modalRecommendation').textContent = recommendation;
+            document.getElementById('modalMedicalNotes').textContent = medicalNotes;
+            
+            // Show modal
+            modal.classList.remove('hidden');
+        }
+
+        // Add event listeners for view report buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewButtons = document.querySelectorAll('.view-report-btn');
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const reportId = this.getAttribute('data-report-id');
+                    const classification = this.getAttribute('data-classification');
+                    const confidence = this.getAttribute('data-confidence');
+                    const date = this.getAttribute('data-date');
+                    showReportDetails(reportId, classification, confidence, date);
+                });
+            });
+        });
+
+        // Close report modal
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('hidden');
+        }
+
+        // Download PDF functionality
+        function downloadPDF() {
+            // Get report data
+            const patientId = document.getElementById('modalPatientId').textContent;
+            const classification = document.getElementById('modalClassification').textContent;
+            const confidence = document.getElementById('modalConfidence').textContent;
+            const testDate = document.getElementById('modalTestDate').textContent;
+            
+            // Create PDF content (simplified version)
+            const pdfContent = `
+Diabetic Retinopathy Report
+===========================
+Patient ID: ${patientId}
+Test Date: ${testDate}
+Classification: ${classification}
+Confidence Score: ${confidence}
+
+Patient Information:
+- Age: ${document.getElementById('modalAge').textContent}
+- Gender: ${document.getElementById('modalGender').textContent}
+
+Analysis Results:
+- Risk Level: ${document.getElementById('modalRiskLevel').textContent}
+- Recommendation: ${document.getElementById('modalRecommendation').textContent}
+
+Medical Notes:
+${document.getElementById('modalMedicalNotes').textContent}
+
+Generated on: ${new Date().toLocaleString()}
+            `;
+            
+            // Create and download PDF file
+            const blob = new Blob([pdfContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DR_Report_${patientId}_${testDate}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('reportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReportModal();
+            }
+        });
+
+        // Add search functionality
+        document.querySelector('button[class*="bg-gradient-to-r"]').addEventListener('click', function() {
+            // Implement search logic here
+            console.log('Search functionality would be implemented here');
+        });
+        
+            </script>
+</body>
+</html>

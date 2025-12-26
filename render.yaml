@@ -1,0 +1,33 @@
+services:
+  # Web Service
+  - type: web
+    name: diabetic-retinopathy-app
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn dr_detection.wsgi:application"
+    autoDeploy: true
+    
+    # Environment Variables
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: dr_detection.settings
+      - key: PYTHON_VERSION
+        value: 3.9.16
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+    
+    # Static Files
+    staticPublish:
+      path: staticfiles
+      directory: static
+
+# Disk for database and media files
+disks:
+  - name: diabetic-data
+    path: /var/data
+    sizeGB: 1
